@@ -1,0 +1,16 @@
+# environment
+.env
+
+# local runtime data
+data/
+
+# python
+__pycache__/
+*.pyc
+
+# virtual env
+backend/.venv/
+
+# macOS
+.DS_Store
+
