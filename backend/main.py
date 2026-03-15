@@ -15,6 +15,8 @@ from .rag_pipeline import RagStore, build_prompt, ollama_chat
 from .pdf_utils import extract_text_from_pdf
 import tempfile
 
+from .pii_redactor import redact_pii
+
 from .logger import get_logger
 
 logger = get_logger(__name__)
@@ -91,7 +93,7 @@ def ingest_text(req: IngestTextRequest, user=Depends(require_role("admin"))):
 @app.post("/ingest/file")
 async def ingest_file(source: str, file: UploadFile = File(...), user=Depends(require_role("admin"))):
     logger.info(
-        "File ingest requested: filename=%s actor=%s",
+        "event=ingest_file_requested filename=%s actor=%s",
         file.filename,
         user["username"]
     )
@@ -129,7 +131,7 @@ async def ingest_file(source: str, file: UploadFile = File(...), user=Depends(re
 @app.post("/query", response_model=QueryResponse)
 def query(req: QueryRequest, user=Depends(get_current_user)):
     logger.info(
-        "Query requested: actor=%s top_k=%s",
+        "event=query_requested actor=%s top_k=%s",
         user["username"],
         req.top_k
     )
@@ -158,7 +160,7 @@ def query(req: QueryRequest, user=Depends(get_current_user)):
             "event": "query",
             "actor": user["username"],
             "role": user["role"],
-            "question": safe_truncate(req.question, 300),
+            "question": safe_truncate(redact_pii(req.question), 300),
             "top_k": req.top_k,
             "context_ids": [c.get("id") for c in contexts],
             "latency_ms": ms,
@@ -183,7 +185,7 @@ def query(req: QueryRequest, user=Depends(get_current_user)):
             "event": "query_error",
             "actor": user["username"],
             "role": user["role"],
-            "question": safe_truncate(req.question, 300),
+            "question": safe_truncate(redact_pii(req.question), 300),
             "error": str(e),
         })
 
@@ -196,7 +198,7 @@ def audit_summary(user=Depends(require_role("admin"))):
     """
 
     logger.info(
-        "Audit summary requested: actor=%s",
+        "event=audit_summary_requested actor=%s",
         user["username"]
     )
 
@@ -229,7 +231,7 @@ def audit_summary(user=Depends(require_role("admin"))):
 @app.post("/ingest/pdf")
 async def ingest_pdf(file: UploadFile = File(...), user=Depends(require_role("admin"))):
     logger.info(
-        "PDF ingest requested: filename=%s actor=%s",
+        "event=ingest_pdf_requested filename=%s actor=%s",
         file.filename,
         user["username"]
     )   
@@ -237,7 +239,7 @@ async def ingest_pdf(file: UploadFile = File(...), user=Depends(require_role("ad
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
-    logger.info(f"[PDF] received file {file.filename}")
+    logger.info(f"event=ingest_pdf_received filename=%s", file.filename)
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         contents = await file.read()
