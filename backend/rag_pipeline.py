@@ -177,21 +177,40 @@ def ollama_chat(prompt: str, system: Optional[str] = None) -> str:
     return data.get("response", "").strip()
 
 def build_prompt(question: str, contexts: List[Dict[str, Any]]) -> str:
-    context_block = "\n\n".join(
-        [
-            f"[Source: {c.get('source') or 'unknown'}"
-            f"{' | page=' + str(c.get('page')) if c.get('page') is not None else ''}"
-            f" | id={c.get('id')}]\n{c.get('text')}"
+    if not contexts:
+        context_block = "[NO CONTEXT RETRIEVED]"
+    else:
+        context_block = "\n\n".join([
+            (
+                f"[Source: {c.get('source') or 'unknown'}"
+                f"{' | page=' + str(c.get('page')) if c.get('page') is not None else ''}"
+                f" | id={c.get('id')}]\n{c.get('text')}"
+            )
             for c in contexts
-        ]
-    )
-    return f"""You are a helpful assistant. Use ONLY the provided context. If the answer is not in the context, say you don't know.
+        ])
+
+    return f"""You are a grounded AI assistant for regulated document workflows.
+
+Rules:
+1. Use ONLY the provided context.
+2. Do NOT use outside knowledge.
+3. If the context does not directly answer the question, say exactly: "I don't know based on the provided documents."
+4. Do not infer missing facts from partial matches.
+5. Be concise and factual.
+6. Cite supporting evidence using source and page when available.
+
+Return your answer in this format:
+
+Answer:
+<short answer>
+
+Evidence:
+- <source/page/id reference 1>
+- <source/page/id reference 2 if applicable>
 
 CONTEXT:
 {context_block}
 
 QUESTION:
 {question}
-
-ANSWER (concise, with any relevant source ids):
 """

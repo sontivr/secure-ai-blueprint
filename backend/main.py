@@ -6,7 +6,7 @@ from typing import Optional, List, Dict, Any
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel, Field
 
-from .config import APP_NAME, ENV
+from .config import APP_NAME, ENV, MAX_RETRIEVAL_DISTANCE
 from .auth import authenticate_user, create_access_token
 from .rbac import get_current_user, require_role
 from .audit_logger import write_audit, safe_truncate
@@ -143,15 +143,55 @@ def query(req: QueryRequest, user=Depends(get_current_user)):
 
         logger.info("retrieving contexts...")
         contexts = store.query(req.question, k=req.top_k)
-        logger.info(f"contexts retrieved: {len(contexts)}")
+        MAX_DISTANCE = 1.2
+        filtered_contexts = [c for c in contexts if c.get("distance") is not None and c["distance"] <= MAX_RETRIEVAL_DISTANCE]
+        if not filtered_contexts:
+            answer = (
+                "Answer:\n"
+                "I don't know based on the provided documents.\n\n"
+                "Evidence:\n"
+                "- No sufficiently relevant supporting passages were retrieved."
+            )
+            
+            ms = int((time.time() - t0) * 1000)
+
+            write_audit({
+                "event": "query",
+                "actor": user["username"],
+                "role": user["role"],
+                "question": safe_truncate(redact_pii(req.question), 300),
+                "top_k": req.top_k,
+                "context_ids": [],
+                "latency_ms": ms,
+                "answer_len": len(answer),
+            })
+
+            logger.info(
+                "event=query_completed actor=%s top_k=%s contexts=%s latency_ms=%s",
+                user["username"],
+                req.top_k,
+                0,
+                ms
+            )
+
+            return QueryResponse(answer=answer, contexts=[])
+        
+        logger.info(f"filtered contexts retrieved: {len(filtered_contexts)}")
 
         logger.info("building prompt...")
-        prompt = build_prompt(req.question, contexts)
+        prompt = build_prompt(req.question, filtered_contexts)
 
-        system = "Never reveal secrets. Do not fabricate. Use only provided context."
+        system = (
+            "You are a document-grounded assistant. "
+            "Answer only from the supplied context. "
+            "Do not guess or use outside knowledge. "
+            "If evidence is insufficient, say you do not know based on the provided documents."
+        )
 
         logger.info("calling ollama...")
         answer = ollama_chat(prompt, system=system)
+        if "Answer:" not in answer:
+            answer = f"Answer:\n{answer}\n\nEvidence:\n- format not fully structured"
         logger.info("ollama returned")
 
         ms = int((time.time() - t0) * 1000)
@@ -162,7 +202,7 @@ def query(req: QueryRequest, user=Depends(get_current_user)):
             "role": user["role"],
             "question": safe_truncate(redact_pii(req.question), 300),
             "top_k": req.top_k,
-            "context_ids": [c.get("id") for c in contexts],
+            "context_ids": [c.get("id") for c in filtered_contexts],
             "latency_ms": ms,
             "answer_len": len(answer),
         })
@@ -175,7 +215,7 @@ def query(req: QueryRequest, user=Depends(get_current_user)):
             ms
         )
 
-        return QueryResponse(answer=answer, contexts=contexts)
+        return QueryResponse(answer=answer, contexts=filtered_contexts)
 
     except Exception as e:
         import traceback

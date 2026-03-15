@@ -29,3 +29,5 @@ APP_NAME = "Secure AI Blueprint (Lean V1)"
 ENV = os.getenv("ENV", "dev")
 
 ANONYMIZED_TELEMETRY = os.getenv("ANONYMIZED_TELEMETRY", "False").lower() == "true"
+
+MAX_RETRIEVAL_DISTANCE = float(os.getenv("MAX_RETRIEVAL_DISTANCE", "1.2"))
