@@ -21,15 +21,24 @@ class Chunk:
     text: str
     source: str
     chunk_id: str
+    metadata: dict
 
-def _chunk_text(text: str, source: str, max_chars: int = 1200, overlap: int = 150) -> List[Chunk]:
+def _chunk_text(
+    text: str,
+    source: str,
+    base_metadata: dict | None = None,
+    max_chars: int = 1200,
+    overlap: int = 150
+) -> List[Chunk]:
     text = text.strip()
     if not text:
         return []
 
+    base_metadata = base_metadata or {}
     chunks: List[Chunk] = []
     start = 0
     n = len(text)
+    chunk_index = 0
 
     while start < n:
         end = min(start + max_chars, n)
@@ -37,7 +46,19 @@ def _chunk_text(text: str, source: str, max_chars: int = 1200, overlap: int = 15
 
         if chunk_txt:
             h = hashlib.sha256((source + "::" + chunk_txt).encode("utf-8")).hexdigest()[:16]
-            chunks.append(Chunk(text=chunk_txt, source=source, chunk_id=f"{source}:{h}"))
+            metadata = dict(base_metadata)
+            metadata["source"] = source
+            metadata["chunk_index"] = chunk_index
+
+            chunks.append(
+                Chunk(
+                    text=chunk_txt,
+                    source=source,
+                    chunk_id=f"{source}:{h}",
+                    metadata=metadata
+                )
+            )
+            chunk_index += 1
 
         if end >= n:
             break
@@ -69,7 +90,7 @@ class RagStore:
     
         ids = [c.chunk_id for c in chunks]
         docs = [c.text for c in chunks]
-        metas = [{"source": c.source} for c in chunks]
+        metas = [c.metadata for c in chunks]
     
         logger.info("encoding embeddings...")
         embs = self.embedder.encode(docs, normalize_embeddings=True).tolist()
@@ -100,15 +121,43 @@ class RagStore:
     
         out = []
         for doc, meta, dist, _id in zip(docs, metas, dists, ids):
+            meta = meta or {}
             out.append({
                 "id": _id,
-                "source": (meta or {}).get("source"),
+                "source": meta.get("source"),
+                "page": meta.get("page"),
+                "chunk_index": meta.get("chunk_index"),
                 "distance": dist,
                 "text": doc
-            })
-    
+            })    
+
         logger.info(f"query returning {len(out)} contexts")
         return out
+    
+    def upsert_pages(self, pages: List[Dict[str, Any]], source: str) -> Dict[str, Any]:
+        all_chunks: List[Chunk] = []
+
+        for page in pages:
+            page_num = page["page"]
+            text = page["text"]
+
+            chunks = _chunk_text(
+                text,
+                source=source,
+                base_metadata={"page": page_num}
+            )
+            all_chunks.extend(chunks)
+
+        if not all_chunks:
+            return {"upserted": 0}
+
+        ids = [c.chunk_id for c in all_chunks]
+        docs = [c.text for c in all_chunks]
+        metas = [c.metadata for c in all_chunks]
+        embs = self.embedder.encode(docs, normalize_embeddings=True).tolist()
+
+        self.collection.upsert(ids=ids, documents=docs, metadatas=metas, embeddings=embs)
+        return {"upserted": len(ids)}
 
 def ollama_chat(prompt: str, system: Optional[str] = None) -> str:
     url = f"{OLLAMA_BASE_URL}/api/generate"
@@ -129,7 +178,12 @@ def ollama_chat(prompt: str, system: Optional[str] = None) -> str:
 
 def build_prompt(question: str, contexts: List[Dict[str, Any]]) -> str:
     context_block = "\n\n".join(
-        [f"[Source: {c.get('source') or 'unknown'} | id={c.get('id')}]\n{c.get('text')}" for c in contexts]
+        [
+            f"[Source: {c.get('source') or 'unknown'}"
+            f"{' | page=' + str(c.get('page')) if c.get('page') is not None else ''}"
+            f" | id={c.get('id')}]\n{c.get('text')}"
+            for c in contexts
+        ]
     )
     return f"""You are a helpful assistant. Use ONLY the provided context. If the answer is not in the context, say you don't know.
 

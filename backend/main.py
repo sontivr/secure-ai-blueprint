@@ -12,7 +12,7 @@ from .rbac import get_current_user, require_role
 from .audit_logger import write_audit, safe_truncate
 from .rag_pipeline import RagStore, build_prompt, ollama_chat
 
-from .pdf_utils import extract_text_from_pdf
+from .pdf_utils import extract_pages_from_pdf
 import tempfile
 
 from .pii_redactor import redact_pii
@@ -246,12 +246,12 @@ async def ingest_pdf(file: UploadFile = File(...), user=Depends(require_role("ad
         tmp.write(contents)
         tmp_path = tmp.name
 
-    text = extract_text_from_pdf(tmp_path)
+    pages = extract_pages_from_pdf(tmp_path)
 
-    if not text.strip():
+    if not pages:
         raise HTTPException(status_code=400, detail="No text extracted from PDF")
 
-    result = store.upsert_text(text, source=file.filename)
+    result = store.upsert_pages(pages, source=file.filename)
 
     write_audit({
         "event": "ingest_pdf",
