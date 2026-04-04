@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+.venv
+backend/.venv
+backend/__pycache__
+backend/tests
+data/chroma
+data/audit.jsonl
+docs/screenshots
+*.pyc
+.DS_Store

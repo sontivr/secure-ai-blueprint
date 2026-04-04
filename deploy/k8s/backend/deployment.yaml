@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-ai-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-ai-backend
+  template:
+    metadata:
+      labels:
+        app: secure-ai-backend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: controlplane
+      containers:
+        - name: backend
+          image: docker.io/library/secure-ai-backend:step1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: ADMIN_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: secure-ai-backend-secret
+                  key: ADMIN_PASSWORD_HASH
+            - name: USER_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: secure-ai-backend-secret
+                  key: USER_PASSWORD_HASH  
+          readinessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 20
