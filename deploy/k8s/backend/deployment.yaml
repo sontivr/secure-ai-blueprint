@@ -23,6 +23,8 @@ spec:
           env:
             - name: PYTHONUNBUFFERED
               value: "1"
+            - name: DATA_DIR
+              value: /app/data
             - name: ADMIN_PASSWORD_HASH
               valueFrom:
                 secretKeyRef:
@@ -45,3 +47,10 @@ spec:
               port: 8000
             initialDelaySeconds: 20
             periodSeconds: 20
+          volumeMounts:
+            - name: backend-storage
+              mountPath: /app/data
+      volumes:
+        - name: backend-storage
+          persistentVolumeClaim:
+            claimName: secure-ai-backend-pvc
