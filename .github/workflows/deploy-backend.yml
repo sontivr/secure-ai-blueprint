@@ -1,0 +1,26 @@
+name: Deploy Backend to Local k3s
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'deploy/k8s/backend/**'
+      - 'Dockerfile.backend'
+      - '.github/workflows/deploy-backend.yml'
+      - 'script/deploy_backend.sh'
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Verify kubectl context
+        run: kubectl get nodes -o wide
+
+      - name: Deploy backend
+        run: ./script/deploy_backend.sh step1
