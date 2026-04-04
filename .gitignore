@@ -14,6 +14,11 @@ backend/.venv/
 # macOS
 .DS_Store
 
-
 # Local k8s secrets
 deploy/k8s/backend/secret.yaml
+
+# docker
+*.tar
+
+# misc
+*.log
