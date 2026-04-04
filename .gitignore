@@ -22,3 +22,5 @@ deploy/k8s/backend/secret.yaml
 
 # misc
 *.log
+
+*.sqlite3
