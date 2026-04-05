@@ -1,0 +1,168 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="ZiqBJmwkRNY69AxqOUuU" name="CI-CD Deployment Flow v2">
+    <mxGraphModel dx="2934" dy="1031" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="01SRNsovx1qPQG-50Jd2-1" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=24;fontColor=#111827;" value="Secure AI Homelab CI/CD Deployment Flow" vertex="1">
+          <mxGeometry height="30" width="560" x="30" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-2" parent="1" style="swimlane;html=1;rounded=1;startSize=30;fillColor=#f8fafc;strokeColor=#cbd5e1;fontStyle=1;" value="GitHub" vertex="1">
+          <mxGeometry height="740" width="210" x="30" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-3" parent="1" style="swimlane;html=1;rounded=1;startSize=30;fillColor=#f8fafc;strokeColor=#cbd5e1;fontStyle=1;" value="Self-Hosted Runner on Mac" vertex="1">
+          <mxGeometry height="740" width="450" x="270" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-4" parent="1" style="swimlane;html=1;rounded=1;startSize=30;fillColor=#f8fafc;strokeColor=#cbd5e1;fontStyle=1;" value="Local Cluster" vertex="1">
+          <mxGeometry height="740" width="760" x="750" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;" value="Developer commit + push&#xa;to main" vertex="1">
+          <mxGeometry height="75" width="150" x="60" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#8b5cf6;" value="GitHub Actions workflow&#xa;deploy-backend.yml" vertex="1">
+          <mxGeometry height="80" width="150" x="60" y="275" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#94a3b8;" value="Checkout repo" vertex="1">
+          <mxGeometry height="60" width="160" x="305" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#94a3b8;" value="Verify environment&#xa;kubectl / multipass / docker" vertex="1">
+          <mxGeometry height="60" width="180" x="505" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;" value="docker build&#xa;secure-ai-backend:step1" vertex="1">
+          <mxGeometry height="70" width="160" x="305" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;" value="docker save&#xa;secure-ai-backend-step1.tar" vertex="1">
+          <mxGeometry height="70" width="180" x="505" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cffafe;strokeColor=#06b6d4;" value="multipass transfer&#xa;tar to controlplane" vertex="1">
+          <mxGeometry height="70" width="160" x="305" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;" value="kubectl apply&#xa;PVC / Deployment / Service / Ingress" vertex="1">
+          <mxGeometry height="90" width="180" x="505" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;" value="kubectl rollout restart&#xa;secure-ai-backend" vertex="1">
+          <mxGeometry height="70" width="160" x="305" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;" value="kubectl rollout status&#xa;+ pod check" vertex="1">
+          <mxGeometry height="70" width="180" x="505" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-15" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;" value="Clean transferred tar&#xa;from controlplane" vertex="1">
+          <mxGeometry height="70" width="190" x="400" y="625" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9f99d;strokeColor=#84cc16;" value="controlplane&#xa;receives tar" vertex="1">
+          <mxGeometry height="70" width="160" x="790" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9f99d;strokeColor=#84cc16;fontStyle=1;" value="k3s ctr -n k8s.io&#xa;images import" vertex="1">
+          <mxGeometry height="70" width="180" x="995" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-18" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#94a3b8;" value="containerd image store&#xa;docker.io/library/secure-ai-backend:step1" vertex="1">
+          <mxGeometry height="85" width="250" x="1215" y="172" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbf7d0;strokeColor=#16a34a;" value="Deployment update" vertex="1">
+          <mxGeometry height="70" width="160" x="790" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbf7d0;strokeColor=#16a34a;fontStyle=1;" value="New backend pod" vertex="1">
+          <mxGeometry height="70" width="160" x="995" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5d0fe;strokeColor=#d946ef;" value="Service + Ingress&#xa;secure-ai.lab still routes to backend" vertex="1">
+          <mxGeometry height="85" width="220" x="1200" y="367" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#a855f7;" value="Validated result&#xa;Workflow succeeded&#xa;App reachable after push" vertex="1">
+          <mxGeometry height="90" width="230" x="995" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-23" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#475569;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-24" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#7c3aed;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="260" y="315" />
+              <mxPoint x="260" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-25" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#475569;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-26" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#475569;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="595" y="210" />
+              <mxPoint x="385" y="210" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-27" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#60a5fa;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-28" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#06b6d4;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-11">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="595" y="330" />
+              <mxPoint x="385" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-29" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#06b6d4;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-16">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="350" />
+              <mxPoint x="730" y="350" />
+              <mxPoint x="730" y="215" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-30" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#84cc16;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-31" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#84cc16;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-32" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;dashed=1;endArrow=block;strokeColor=#475569;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-33" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#22c55e;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-19">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="770" y="410" />
+              <mxPoint x="770" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-34" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#16a34a;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-35" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#d946ef;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-36" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#22c55e;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="595" y="475" />
+              <mxPoint x="385" y="475" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-37" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#22c55e;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-38" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;strokeColor=#a855f7;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-22">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="730" y="535" />
+              <mxPoint x="730" y="605" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="01SRNsovx1qPQG-50Jd2-39" edge="1" parent="1" source="01SRNsovx1qPQG-50Jd2-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;dashed=1;endArrow=block;strokeColor=#f59e0b;strokeWidth=2;" target="01SRNsovx1qPQG-50Jd2-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="595" y="600" />
+              <mxPoint x="495" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
