@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r /app/backend/requirements.k8s-step1.txt
 
 COPY backend /app/backend
 COPY docs /app/docs
-COPY data /app/data
+RUN mkdir -p /app/data
 
 EXPOSE 8000
 
