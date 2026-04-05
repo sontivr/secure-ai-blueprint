@@ -1,0 +1,133 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="19MF_Op19lsThl-PuThB" name="Runtime Request Flow v2">
+    <mxGraphModel dx="2934" dy="1031" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="oQbGD2_7omHyORnz4GdL-1" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontStyle=1;fontSize=24;fontColor=#111827;" value="Secure AI Homelab Runtime Request Flow" vertex="1">
+          <mxGeometry height="30" width="560" x="30" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-2" parent="1" style="swimlane;html=1;rounded=1;startSize=30;fillColor=#f8fafc;strokeColor=#cbd5e1;fontStyle=1;" value="Client" vertex="1">
+          <mxGeometry height="700" width="220" x="30" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-3" parent="1" style="swimlane;html=1;rounded=1;startSize=30;fillColor=#f8fafc;strokeColor=#cbd5e1;fontStyle=1;" value="Ingress &amp; Networking" vertex="1">
+          <mxGeometry height="700" width="280" x="280" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-4" parent="1" style="swimlane;html=1;rounded=1;startSize=30;fillColor=#f8fafc;strokeColor=#cbd5e1;fontStyle=1;" value="Applications &amp; Storage" vertex="1">
+          <mxGeometry height="700" width="950" x="590" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;" value="Browser / curl" vertex="1">
+          <mxGeometry height="70" width="160" x="60" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;" value="/etc/hosts&#xa;secure-ai.lab&#xa;grafana.lab&#xa;nginx.lab" vertex="1">
+          <mxGeometry height="90" width="160" x="60" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;" value="TLS validation&#xa;curl -k / browser exception" vertex="1">
+          <mxGeometry height="75" width="160" x="60" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#ef4444;fontStyle=1;" value="MetalLB&#xa;Traefik external IP&#xa;192.168.2.240" vertex="1">
+          <mxGeometry height="90" width="170" x="340" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5d0fe;strokeColor=#d946ef;fontStyle=1;" value="Traefik Ingress" vertex="1">
+          <mxGeometry height="70" width="170" x="340" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#94a3b8;" value="Host-based routing&#xa;secure-ai.lab → backend&#xa;grafana.lab → Grafana&#xa;nginx.lab → nginx" vertex="1">
+          <mxGeometry height="110" width="210" x="320" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e5e7eb;strokeColor=#6b7280;" value="cert-manager&#xa;TLS secrets" vertex="1">
+          <mxGeometry height="70" width="170" x="340" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbf7d0;strokeColor=#16a34a;fontStyle=1;" value="secure-ai-backend Pod" vertex="1">
+          <mxGeometry height="70" width="180" x="650" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#94a3b8;" value="/docs&#xa;FastAPI UI" vertex="1">
+          <mxGeometry height="70" width="130" x="870" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;" value="/app/data&#xa;PVC mount" vertex="1">
+          <mxGeometry height="70" width="180" x="650" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-15" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#94a3b8;" value="ChromaDB&#xa;/app/data/chroma" vertex="1">
+          <mxGeometry height="70" width="160" x="870" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontStyle=1;" value="Longhorn Volume" vertex="1">
+          <mxGeometry height="70" width="170" x="1080" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bfdbfe;strokeColor=#2563eb;fontStyle=1;" value="Grafana" vertex="1">
+          <mxGeometry height="70" width="160" x="650" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-18" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bfdbfe;strokeColor=#2563eb;" value="Prometheus" vertex="1">
+          <mxGeometry height="70" width="160" x="850" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bfdbfe;strokeColor=#2563eb;" value="Alertmanager" vertex="1">
+          <mxGeometry height="70" width="160" x="1050" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#94a3b8;" value="Node Exporters&#xa;Cluster metrics" vertex="1">
+          <mxGeometry height="70" width="180" x="1250" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#a855f7;" value="Main request path: Client → /etc/hosts → MetalLB IP → Traefik → Backend or Grafana&#xa;State path: Backend → PVC mount → Longhorn" vertex="1">
+          <mxGeometry height="90" width="780" x="650" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-22" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-5" style="endArrow=block;strokeColor=#16a34a;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-23" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-6" style="endArrow=block;strokeColor=#16a34a;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-24" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-8" style="endArrow=block;strokeColor=#ef4444;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-26" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-9" style="endArrow=block;strokeColor=#d946ef;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-27" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-10" style="endArrow=block;strokeColor=#d946ef;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-28" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-10" style="endArrow=block;strokeColor=#d946ef;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-29" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-12" style="endArrow=block;strokeColor=#16a34a;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-30" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-12" style="endArrow=block;strokeColor=#2563eb;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-31" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-14" style="endArrow=block;strokeColor=#2563eb;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-34" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-18" style="endArrow=block;strokeColor=#2563eb;strokeWidth=2;" target="oQbGD2_7omHyORnz4GdL-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-33" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-20" style="endArrow=block;strokeColor=#2563eb;strokeWidth=2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" target="oQbGD2_7omHyORnz4GdL-18">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1340" y="400" />
+              <mxPoint x="930" y="400" />
+            </Array>
+            <mxPoint x="1250" y="410" as="sourcePoint" />
+            <mxPoint x="1010" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-32" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-14" style="endArrow=block;strokeColor=#2563eb;strokeWidth=2;edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;rounded=0;curved=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="oQbGD2_7omHyORnz4GdL-16">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="350" />
+              <mxPoint x="1165" y="350" />
+            </Array>
+            <mxPoint x="750" y="339" as="sourcePoint" />
+            <mxPoint x="1080" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oQbGD2_7omHyORnz4GdL-25" edge="1" parent="1" source="oQbGD2_7omHyORnz4GdL-11" style="endArrow=block;strokeColor=#6b7280;strokeWidth=2;dashed=1;rounded=0;edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="oQbGD2_7omHyORnz4GdL-9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="615" />
+              <mxPoint x="300" y="315" />
+            </Array>
+            <mxPoint x="309.5" y="580" as="sourcePoint" />
+            <mxPoint x="309.5" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

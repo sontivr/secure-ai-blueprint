@@ -1,111 +1,80 @@
-# Secure AI Blueprint (Lean V1)
+# 🚀 Secure AI Homelab
 
-A local-first, regulated-ready RAG reference implementation for secure AI deployment.
+> Production-style AI platform built locally using Kubernetes (k3s) on Multipass, with full CI/CD, storage, ingress, TLS, and observability.
 
-## Current capabilities
-- Local LLM inference with Ollama
-- TXT and PDF ingestion
-- Local embeddings and Chroma vector store
-- JWT authentication
-- RBAC for admin/user roles
-- Audit logging
-- Source-grounded responses
+---
 
-## Lean V1 architecture
+## 🔍 Overview
 
-```text
-                 +----------------------+
-                 |   Admin / User CLI   |
-                 |  curl / Swagger UI   |
-                 +----------+-----------+
-                            |
-                            v
-                 +----------------------+
-                 |     FastAPI API      |
-                 |  Auth / RBAC / RAG   |
-                 +----+-----------+-----+
-                      |           |
-          ingest txt/pdf          | query
-                      |           |
-                      v           v
-             +---------------------------+
-             |   Chunking + Embeddings   |
-             | sentence-transformers     |
-             +-------------+-------------+
-                           |
-                           v
-                 +----------------------+
-                 |   Chroma Vector DB   |
-                 |   local persistence  |
-                 +----------+-----------+
-                            |
-                            v
-                 +----------------------+
-                 |      Ollama LLM      |
-                 |   local generation   |
-                 +----------------------+
+This project demonstrates how to design and operate a **cloud-native AI application platform** entirely on a local machine — replicating real-world production patterns **without relying on public cloud infrastructure**.
 
-Supporting controls:
-- JWT-based authentication
-- Role-based access control
-- Local JSONL audit logs
-- .env-based secret configuration
-- Local-only deployment model
+It combines:
+- Kubernetes (k3s)
+- CI/CD automation (GitHub Actions)
+- Persistent storage (Longhorn)
+- Ingress networking (MetalLB + Traefik)
+- TLS security (cert-manager)
+- Observability (Prometheus + Grafana)
+- AI backend (FastAPI + RAG pipeline)
 
+---
 
-```
-## Regulated-environment design goals
+## 🧠 Why This Project
 
-This project is intentionally designed around foundational controls often needed in regulated environments:
+Modern AI platforms require:
+- scalable infrastructure  
+- reliable deployments  
+- persistent data storage  
+- observability  
+- secure access  
 
-- **Data locality**: documents, embeddings, vector store, and model inference remain local
-- **Access control**: role-gated endpoints for ingestion and audit access
-- **Auditability**: structured event logging for ingestion and query activity
-- **Configurability**: secrets and runtime settings are externalized via environment variables
+This project simulates a **real production environment on a laptop** to:
 
-## Current limitations
+- Validate architecture decisions  
+- Build end-to-end DevOps workflows  
+- Debug real-world failure scenarios  
+- Demonstrate platform engineering expertise  
 
-Lean V1 is intentionally minimal and does not yet include:
-- SSO / OIDC integration
-- encryption at rest
-- PII redaction
-- multi-tenancy
-- policy enforcement workflows
-- production-grade observability
+---
 
-## API endpoints
+## 🏗️ Architecture
 
-- `POST /auth/login` — get JWT token
-- `POST /ingest/text` — ingest text content (admin only)
-- `POST /ingest/file` — ingest `.txt` file (admin only)
-- `POST /ingest/pdf` — ingest PDF file (admin only)
-- `POST /query` — retrieve grounded answer from local knowledge base
-- `GET /audit/summary` — view audit event counts (admin only)
-- `GET /health` — health check
+<p align="center">
+  <img src="docs/diagrams/exported/k3s-homelab-architecture.png" width="900"/>
+</p>
 
-## Why this project exists
+---
 
-Many AI demos are notebook-first and API-dependent. This project takes a different approach: it demonstrates a local-first AI retrieval architecture with security and governance primitives that are more relevant to real enterprise and regulated use cases.
+## 🔄 Runtime Request Flow
 
-## Project intro
+<p align="center">
+  <img src="docs/diagrams/exported/k3s-runtime-request-flow.png" width="900"/>
+</p>
 
-```markdown
-# Secure AI Blueprint
+---
 
-A **local-first secure Retrieval-Augmented Generation (RAG) system** designed for regulated environments.
+## ⚙️ CI/CD Deployment Flow
 
-The project demonstrates how to build AI document assistants with:
+<p align="center">
+  <img src="docs/diagrams/exported/k3s-cicd-deployment-flow.png" width="900"/>
+</p>
 
-- authentication
-- role-based access control
-- audit logging
-- PII-safe logging
-- grounded document answers
-- local LLM inference
+---
 
-All components run locally.
+## 🚀 Features
 
-## Demo
+- ✅ End-to-end automated CI/CD pipeline  
+- ✅ Kubernetes-based architecture (k3s)  
+- ✅ Persistent storage (Longhorn)  
+- ✅ HTTPS-enabled ingress  
+- ✅ Full observability stack (Grafana + Prometheus)  
+- ✅ Self-hosted GitHub runner  
+- ✅ No container registry required (containerd import)  
+- ✅ Production-like environment on local machine  
+
+---
+
+## 📸 Application Screenshots
 
 ### Login
 ![Login](docs/screenshots/login.png)
@@ -113,43 +82,131 @@ All components run locally.
 ### Document Ingestion
 ![Ingest](docs/screenshots/ingest.png)
 
-### Query Answer
+### Query & RAG
 ![Query](docs/screenshots/query.png)
 
-### Audit Summary
+### Audit
 ![Audit](docs/screenshots/audit.png)
 
-## Architecture
+### Monitoring (Grafana)
+![Grafana](docs/screenshots/grafana.png)
 
-Lean V1 architecture:
+---
 
-## Architecture
+## 🧪 Quick Start
 
-Lean V1 architecture:
-
-
-## Features
-
-- JWT authentication
-- Role-based access control
-- Text and PDF document ingestion
-- Local embeddings using Sentence Transformers
-- Vector search using Chroma
-- Local LLM inference with Ollama
-- Grounded answers with source attribution
-- Retrieval relevance filtering
-- PII redaction for audit logs
-- Structured operational logging
-- Streamlit demo UI
-
-## Quick Start
-
-### Start API
+### Create cluster
 
 ```bash
-uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+multipass launch 22.04 --name controlplane --cpus 2 --memory 4G --disk 60G
+multipass launch 22.04 --name node01 --cpus 2 --memory 4G --disk 40G
+multipass launch 22.04 --name node02 --cpus 2 --memory 4G --disk 40G
+```
 
-streamlit run backend/app_ui.py
+### Install k3s
 
-http://localhost:8501
+```bash
+curl -sfL https://get.k3s.io | sh -
+```
 
+### Configure kubectl
+
+```bash
+multipass transfer controlplane:/etc/rancher/k3s/k3s.yaml ~/.kube/config
+```
+
+### Deploy infrastructure
+
+```bash
+kubectl apply -f deploy/k8s/
+```
+
+---
+
+## 🌐 Access
+
+Update `/etc/hosts`:
+
+```
+192.168.2.240 secure-ai.lab grafana.lab nginx.lab
+```
+
+Access:
+
+- Backend: https://secure-ai.lab/docs  
+- Grafana: https://grafana.lab  
+
+---
+
+## 📄 Sample Data
+
+Example documents used for ingestion and query testing:
+
+- docs/sample-data/sample-policy.pdf  
+- docs/sample-data/sample-policy.txt  
+
+These demonstrate multi-format ingestion and evidence-based retrieval.
+
+---
+
+## 📁 Repository Structure
+
+```
+secure-ai-blueprint/
+├── backend/
+├── deploy/k8s/
+├── script/
+├── docs/
+│   ├── diagrams/
+│   ├── screenshots/
+│   ├── sample-data/
+│   └── runbooks/
+├── .github/workflows/
+├── Dockerfile.backend
+├── .env.example
+└── README.md
+```
+
+---
+
+## ⚠️ Challenges & Learnings
+
+- Disk pressure from large images  
+- ErrImageNeverPull debugging  
+- Containerd namespace handling  
+- Read-only filesystem issues  
+- Local DNS resolution challenges  
+- Dependency management for AI libraries  
+
+---
+
+## 🔮 Future Improvements
+
+- Private container registry  
+- Horizontal Pod Autoscaling (HPA)  
+- Service mesh (Istio / Linkerd)  
+- Secrets management (Vault)  
+- Multi-tenant RBAC  
+
+---
+
+## 👤 Author
+
+**Ramana Sonti**  
+Senior Technology Consultant | AI / Cloud Platform Engineering  
+
+---
+
+## ⭐ Key Takeaway
+
+This project demonstrates:
+
+- Cloud-native system design  
+- Kubernetes platform engineering  
+- CI/CD automation  
+- AI application deployment  
+- Real-world troubleshooting  
+
+---
+
+> 💡 Built to mirror production systems — not just a demo.
