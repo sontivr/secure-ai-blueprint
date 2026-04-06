@@ -19,10 +19,13 @@ from .pii_redactor import redact_pii
 
 from .logger import get_logger
 
+from .agent_api import router as agent_router
+
 logger = get_logger(__name__)
 
 
 app = FastAPI(title=APP_NAME)
+app.include_router(agent_router)
 
 store = RagStore()
 

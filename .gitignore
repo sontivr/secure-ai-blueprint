@@ -3,6 +3,9 @@
 
 # local runtime data
 data/
+data/agent-memory/
+data/agent_traces.jsonl
+data/chroma/
 
 # python
 __pycache__/
@@ -14,13 +17,24 @@ backend/.venv/
 # macOS
 .DS_Store
 
+# editors
+.vscode/
+
 # Local k8s secrets
 deploy/k8s/backend/secret.yaml
 
-# docker
+# docker / images
 *.tar
 
-# misc
+# logs
 *.log
 
+# temp files
+*.tmp
+*.swp
+
+# sqlite
 *.sqlite3
+
+# kube
+*.kubeconfig
