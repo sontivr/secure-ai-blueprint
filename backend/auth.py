@@ -43,7 +43,6 @@ def verify_password(password: str, stored: str) -> bool:
         return False
 
 # ---- Lean V1: in-memory users (replace with DB/IdP later) ----
-import os
 
 ADMIN_HASH = os.getenv("ADMIN_PASSWORD_HASH")
 USER_HASH = os.getenv("USER_PASSWORD_HASH")

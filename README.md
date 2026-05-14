@@ -59,18 +59,36 @@ This project simulates a **real production environment on a laptop** to:
   <img src="docs/diagrams/exported/k3s-cicd-deployment-flow.png" width="900"/>
 </p>
 
+> Diagrams are generated from Python scripts in [`docs/diagrams/source/`](docs/diagrams/source/) using the [`diagrams`](https://diagrams.mingrammer.com/) library. Run any `gen_*.py` script from the repo root to regenerate.
+
 ---
 
 ## 🚀 Features
 
-- ✅ End-to-end automated CI/CD pipeline  
-- ✅ Kubernetes-based architecture (k3s)  
-- ✅ Persistent storage (Longhorn)  
-- ✅ HTTPS-enabled ingress  
-- ✅ Full observability stack (Grafana + Prometheus)  
-- ✅ Self-hosted GitHub runner  
-- ✅ No container registry required (containerd import)  
-- ✅ Production-like environment on local machine  
+**Infrastructure**
+- ✅ Kubernetes-based architecture (k3s on Multipass VMs)
+- ✅ Persistent storage (Longhorn)
+- ✅ HTTPS-enabled ingress (MetalLB + Traefik + cert-manager TLS)
+- ✅ Full observability stack (Prometheus + Grafana + Alertmanager)
+- ✅ Namespace isolation (`secure-ai`)
+
+**CI/CD**
+- ✅ End-to-end automated CI/CD pipeline (GitHub Actions)
+- ✅ Self-hosted GitHub runner
+- ✅ Lint → test → build → deploy gating (deploy blocked if tests fail)
+- ✅ No container registry required (containerd image import)
+
+**Application Security**
+- ✅ JWT authentication with PBKDF2-SHA256 password hashing
+- ✅ Role-based access control (admin / user)
+- ✅ Rate limiting on auth endpoint (in-memory sliding window — 10 req/min per IP)
+- ✅ Append-only JSONL audit log with PII redaction
+- ✅ Liveness (`/health`) and readiness (`/ready`) probes
+
+**Quality**
+- ✅ 90-test suite covering RAG pipeline, auth, PII redaction, and all API endpoints
+- ✅ Ruff linting enforced in CI
+- ✅ Lightweight CI test environment (no ChromaDB/sentence-transformers download)
 
 ---
 

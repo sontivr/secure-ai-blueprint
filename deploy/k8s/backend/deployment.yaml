@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: secure-ai-backend
+  namespace: secure-ai
 spec:
   replicas: 1
   selector:
@@ -12,11 +13,9 @@ spec:
       labels:
         app: secure-ai-backend
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: controlplane
       containers:
         - name: backend
-          image: docker.io/library/secure-ai-backend:step1
+          image: docker.io/library/secure-ai-backend:IMAGE_TAG
           imagePullPolicy: Never
           ports:
             - containerPort: 8000
@@ -25,6 +24,8 @@ spec:
               value: "1"
             - name: DATA_DIR
               value: /app/data
+            - name: OLLAMA_BASE_URL
+              value: "http://192.168.2.1:11434"
             - name: ADMIN_PASSWORD_HASH
               valueFrom:
                 secretKeyRef:
@@ -34,19 +35,33 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: secure-ai-backend-secret
-                  key: USER_PASSWORD_HASH  
+                  key: USER_PASSWORD_HASH
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secure-ai-backend-secret
+                  key: JWT_SECRET
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1500Mi"
           readinessProbe:
             httpGet:
-              path: /docs
+              path: /ready
               port: 8000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 15
             periodSeconds: 10
+            failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /docs
+              path: /health
               port: 8000
-            initialDelaySeconds: 20
+            initialDelaySeconds: 30
             periodSeconds: 20
+            failureThreshold: 3
           volumeMounts:
             - name: backend-storage
               mountPath: /app/data

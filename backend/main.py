@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import time
-from typing import Optional, List, Dict, Any
+import threading
+import requests
+from collections import defaultdict
+from typing import List, Dict, Any
 
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from .config import APP_NAME, ENV, MAX_RETRIEVAL_DISTANCE
+from .config import APP_NAME, ENV, MAX_RETRIEVAL_DISTANCE, OLLAMA_BASE_URL
 from .auth import authenticate_user, create_access_token
 from .rbac import get_current_user, require_role
 from .audit_logger import write_audit, safe_truncate
@@ -25,6 +29,28 @@ logger = get_logger(__name__)
 app = FastAPI(title=APP_NAME)
 
 store = RagStore()
+
+# ── Login rate limiter: 10 attempts / 60 s per IP ─────────────────────────────
+_LOGIN_LIMIT = 10
+_LOGIN_WINDOW = 60.0
+_login_counters: Dict[str, List[float]] = defaultdict(list)
+_login_lock = threading.Lock()
+
+
+def _reset_login_counters() -> None:
+    """Reset all per-IP counters. Called by tests between requests."""
+    with _login_lock:
+        _login_counters.clear()
+
+
+def _check_login_rate(request: Request) -> None:
+    ip = getattr(request.client, "host", "unknown")
+    now = time.time()
+    with _login_lock:
+        _login_counters[ip] = [t for t in _login_counters[ip] if now - t < _LOGIN_WINDOW]
+        if len(_login_counters[ip]) >= _LOGIN_LIMIT:
+            raise HTTPException(status_code=429, detail="Too many login attempts")
+        _login_counters[ip].append(now)
 
 class LoginRequest(BaseModel):
     username: str
@@ -51,8 +77,31 @@ class QueryResponse(BaseModel):
 def health():
     return {"status": "ok", "env": ENV}
 
+
+@app.get("/ready")
+def ready():
+    checks: dict = {}
+    try:
+        store.client.heartbeat()
+        checks["chromadb"] = "ok"
+    except Exception as e:
+        checks["chromadb"] = f"error: {e}"
+
+    try:
+        r = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=3)
+        checks["ollama"] = "ok" if r.ok else f"http_{r.status_code}"
+    except Exception as e:
+        checks["ollama"] = f"error: {e}"
+
+    all_ok = all(v == "ok" for v in checks.values())
+    return JSONResponse(
+        status_code=200 if all_ok else 503,
+        content={"status": "ok" if all_ok else "degraded", **checks},
+    )
+
 @app.post("/auth/login", response_model=LoginResponse)
-def login(req: LoginRequest):
+async def login(request: Request, req: LoginRequest):
+    _check_login_rate(request)
     logger.info("Login attempt: username=%s", req.username)
     u = authenticate_user(req.username, req.password)
     if not u:
@@ -143,7 +192,6 @@ def query(req: QueryRequest, user=Depends(get_current_user)):
 
         logger.info("retrieving contexts...")
         contexts = store.query(req.question, k=req.top_k)
-        MAX_DISTANCE = 1.2
         filtered_contexts = [c for c in contexts if c.get("distance") is not None and c["distance"] <= MAX_RETRIEVAL_DISTANCE]
         if not filtered_contexts:
             answer = (
@@ -279,7 +327,7 @@ async def ingest_pdf(file: UploadFile = File(...), user=Depends(require_role("ad
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
-    logger.info(f"event=ingest_pdf_received filename=%s", file.filename)
+    logger.info("event=ingest_pdf_received filename=%s", file.filename)
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         contents = await file.read()

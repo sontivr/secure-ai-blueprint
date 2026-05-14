@@ -16,7 +16,9 @@ CHROMA_DIR.mkdir(parents=True, exist_ok=True)
 
 AUDIT_LOG_PATH = Path(os.getenv("AUDIT_LOG_PATH", str(DATA_DIR / "audit.jsonl")))
 
-JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-.env")
+JWT_SECRET = os.getenv("JWT_SECRET", "")
+if not JWT_SECRET or len(JWT_SECRET) < 32:
+    raise RuntimeError("JWT_SECRET must be set to a random string of at least 32 characters")
 JWT_ALG = "HS256"
 JWT_EXPIRES_MIN = int(os.getenv("JWT_EXPIRES_MIN", "480"))  # 8 hours by default
 

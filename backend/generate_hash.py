@@ -1,7 +1,6 @@
 import os
 import base64
 import hashlib
-import hmac
 
 _PBKDF2_ITERS = 200_000
 _SALT_BYTES = 16

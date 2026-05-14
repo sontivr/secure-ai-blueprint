@@ -1,7 +1,5 @@
 import re
 
-import pytest
-
 from backend import generate_hash
 
 HASH_REGEX = re.compile(r"^pbkdf2_sha256\$\d+\$[A-Za-z0-9_-]+\$[A-Za-z0-9_-]+$")

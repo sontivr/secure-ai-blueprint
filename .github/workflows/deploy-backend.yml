@@ -7,13 +7,40 @@ on:
     paths:
       - 'backend/**'
       - 'deploy/k8s/backend/**'
+      - 'deploy/k8s/namespace.yaml'
       - 'Dockerfile.backend'
       - '.github/workflows/deploy-backend.yml'
       - 'script/deploy_backend.sh'
+      - 'requirements-test.txt'
 
 jobs:
+  lint-and-test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install lint dependencies
+        run: pip install ruff==0.4.4
+
+      - name: Lint
+        run: ruff check backend/ --select=E,F --ignore=E501
+
+      - name: Install test dependencies
+        run: pip install -r requirements-test.txt
+
+      - name: Test
+        run: pytest backend/tests/ -v
+
   deploy:
     runs-on: self-hosted
+    needs: lint-and-test
 
     steps:
       - name: Checkout repo
@@ -23,4 +50,4 @@ jobs:
         run: kubectl get nodes -o wide
 
       - name: Deploy backend
-        run: ./script/deploy_backend.sh step1
+        run: ./script/deploy_backend.sh "${GITHUB_SHA::7}"
