@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import os
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
 
@@ -45,7 +44,7 @@ def _chunk_text(
         chunk_txt = text[start:end].strip()
 
         if chunk_txt:
-            h = hashlib.sha256((source + "::" + chunk_txt).encode("utf-8")).hexdigest()[:16]
+            h = hashlib.sha256(f"{source}:{chunk_index}:{chunk_txt}".encode("utf-8")).hexdigest()[:16]
             metadata = dict(base_metadata)
             metadata["source"] = source
             metadata["chunk_index"] = chunk_index

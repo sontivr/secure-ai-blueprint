@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: secure-ai-backend
+  namespace: secure-ai
   annotations:
     cert-manager.io/cluster-issuer: selfsigned-clusterissuer
 spec:

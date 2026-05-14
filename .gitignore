@@ -17,6 +17,9 @@ backend/.venv/
 # Local k8s secrets
 deploy/k8s/backend/secret.yaml
 
+# Streamlit secrets
+.streamlit/secrets.toml
+
 # docker
 *.tar
 
