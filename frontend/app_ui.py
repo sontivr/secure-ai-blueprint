@@ -1,12 +1,16 @@
+import os
+
 import requests
 import streamlit as st
 
-try:
-    API_BASE_URL = st.secrets["API_BASE_URL"]
-except Exception:
-    API_BASE_URL = "http://127.0.0.1:8000"
-
 st.set_page_config(page_title="Secure AI Blueprint", page_icon="🔒", layout="wide")
+
+API_BASE_URL = os.getenv("API_BASE_URL")
+if not API_BASE_URL:
+    try:
+        API_BASE_URL = st.secrets["API_BASE_URL"]
+    except Exception:
+        API_BASE_URL = "http://secure-ai-backend.secure-ai.svc.cluster.local"
 
 
 def api_headers() -> dict:
@@ -18,52 +22,48 @@ def api_headers() -> dict:
 
 
 def login(username: str, password: str):
-    resp = requests.post(
+    return requests.post(
         f"{API_BASE_URL}/auth/login",
         json={"username": username, "password": password},
         timeout=30,
     )
-    return resp
 
 
 def ingest_text(source: str, text: str):
-    resp = requests.post(
+    return requests.post(
         f"{API_BASE_URL}/ingest/text",
         headers={**api_headers(), "Content-Type": "application/json"},
         json={"source": source, "text": text},
         timeout=120,
     )
-    return resp
 
 
 def ingest_file(uploaded_file, endpoint: str):
     files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
-    resp = requests.post(
+    return requests.post(
         f"{API_BASE_URL}{endpoint}",
         headers=api_headers(),
         files=files,
+        params={"source": uploaded_file.name},
         timeout=240,
     )
-    return resp
 
 
 def query_docs(question: str, top_k: int):
-    resp = requests.post(
+    return requests.post(
         f"{API_BASE_URL}/query",
         headers={**api_headers(), "Content-Type": "application/json"},
         json={"question": question, "top_k": top_k},
         timeout=240,
     )
-    return resp
 
 
 def get_audit_summary():
-    resp = requests.get(
+    return requests.get(
         f"{API_BASE_URL}/audit/summary",
         headers=api_headers(),
         timeout=60,
     )
-    return resp
 
 
 if "token" not in st.session_state:
@@ -126,7 +126,7 @@ with tab_ingest:
     elif st.session_state.role != "admin":
         st.warning("Only admin users can ingest content.")
     else:
-        ingest_mode = st.radio("Choose input type", ["Text", "TXT File", "PDF File"], horizontal=True)
+        ingest_mode = st.radio("Choose input type", ["Text", "TXT File", "PDF File", "MD File"], horizontal=True)
 
         if ingest_mode == "Text":
             with st.form("ingest_text_form"):
@@ -156,6 +156,20 @@ with tab_ingest:
                         resp = ingest_file(uploaded_txt, "/ingest/file")
                         if resp.ok:
                             st.success("TXT file ingested successfully.")
+                            st.json(resp.json())
+                        else:
+                            st.error(f"Ingest failed: {resp.text}")
+                    except Exception as e:
+                        st.error(f"Ingest error: {e}")
+
+        elif ingest_mode == "MD File":
+            uploaded_md = st.file_uploader("Upload .md file", type=["md"], key="md_uploader")
+            if uploaded_md is not None:
+                if st.button("Ingest MD File"):
+                    try:
+                        resp = ingest_file(uploaded_md, "/ingest/file")
+                        if resp.ok:
+                            st.success("Markdown file ingested successfully.")
                             st.json(resp.json())
                         else:
                             st.error(f"Ingest failed: {resp.text}")
