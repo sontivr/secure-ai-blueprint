@@ -32,4 +32,4 @@ ENV = os.getenv("ENV", "dev")
 
 ANONYMIZED_TELEMETRY = os.getenv("ANONYMIZED_TELEMETRY", "False").lower() == "true"
 
-MAX_RETRIEVAL_DISTANCE = float(os.getenv("MAX_RETRIEVAL_DISTANCE", "1.2"))
+MAX_RETRIEVAL_DISTANCE = float(os.getenv("MAX_RETRIEVAL_DISTANCE", "1.6"))
