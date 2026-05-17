@@ -41,6 +41,21 @@ def _chunk_text(
 
     while start < n:
         end = min(start + max_chars, n)
+
+        # Break at a paragraph or word boundary instead of a raw char position
+        if end < n:
+            para_break = text.rfind('\n\n', start, end)
+            if para_break > start + max_chars // 2:
+                end = para_break + 2
+            else:
+                line_break = text.rfind('\n', start, end)
+                if line_break > start + max_chars // 2:
+                    end = line_break + 1
+                else:
+                    word_break = text.rfind(' ', start, end)
+                    if word_break > start:
+                        end = word_break + 1
+
         chunk_txt = text[start:end].strip()
 
         if chunk_txt:
@@ -150,6 +165,13 @@ class RagStore:
         if not all_chunks:
             return {"upserted": 0}
 
+        # Delete all existing chunks for this source before upserting so
+        # re-ingests don't leave stale chunks from prior chunking runs.
+        existing = self.collection.get(where={"source": source})
+        if existing["ids"]:
+            self.collection.delete(ids=existing["ids"])
+            logger.info(f"deleted {len(existing['ids'])} existing chunks for source={source}")
+
         ids = [c.chunk_id for c in all_chunks]
         docs = [c.text for c in all_chunks]
         metas = [c.metadata for c in all_chunks]
@@ -159,10 +181,14 @@ class RagStore:
         return {"upserted": len(ids)}
 
 def ollama_chat(prompt: str, system: Optional[str] = None) -> str:
-    url = f"{OLLAMA_BASE_URL}/api/generate"
+    url = f"{OLLAMA_BASE_URL}/api/chat"
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
     payload = {
         "model": OLLAMA_MODEL,
-        "prompt": prompt if system is None else f"{system}\n\n{prompt}",
+        "messages": messages,
         "stream": False,
     }
 
@@ -173,7 +199,7 @@ def ollama_chat(prompt: str, system: Optional[str] = None) -> str:
 
     data = r.json()
     logger.info(f"response keys={list(data.keys())}")
-    return data.get("response", "").strip()
+    return data.get("message", {}).get("content", "").strip()
 
 def build_prompt(question: str, contexts: List[Dict[str, Any]]) -> str:
     if not contexts:
@@ -188,28 +214,11 @@ def build_prompt(question: str, contexts: List[Dict[str, Any]]) -> str:
             for c in contexts
         ])
 
-    return f"""You are a grounded AI assistant for regulated document workflows.
+    return f"""Use the following document excerpts to answer the question. Answer in complete sentences. If the excerpts do not contain enough information, say "I don't know based on the provided documents."
 
-Rules:
-1. Use ONLY the provided context.
-2. Do NOT use outside knowledge.
-3. If the context does not directly answer the question, say exactly: "I don't know based on the provided documents."
-4. Do not infer missing facts from partial matches.
-5. Be concise and factual.
-6. Cite supporting evidence using source and page when available.
-
-Return your answer in this format:
-
-Answer:
-<short answer>
-
-Evidence:
-- <source/page/id reference 1>
-- <source/page/id reference 2 if applicable>
-
-CONTEXT:
+DOCUMENT EXCERPTS:
 {context_block}
 
-QUESTION:
-{question}
-"""
+QUESTION: {question}
+
+Answer:"""

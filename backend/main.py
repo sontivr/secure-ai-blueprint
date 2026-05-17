@@ -147,8 +147,8 @@ async def ingest_file(source: str, file: UploadFile = File(...), user=Depends(re
         user["username"]
     )
 
-    if not file.filename.lower().endswith(".txt"):
-        raise HTTPException(status_code=400, detail="Lean V1 supports .txt only")
+    if not file.filename.lower().endswith((".txt", ".md")):
+        raise HTTPException(status_code=400, detail="Lean V1 supports .txt and .md only")
 
     content = (await file.read()).decode("utf-8", errors="replace")
     t0 = time.time()
@@ -238,8 +238,8 @@ def query(req: QueryRequest, user=Depends(get_current_user)):
 
         logger.info("calling ollama...")
         answer = ollama_chat(prompt, system=system)
-        if "Answer:" not in answer:
-            answer = f"Answer:\n{answer}\n\nEvidence:\n- format not fully structured"
+        if not answer:
+            answer = "I don't know based on the provided documents."
         logger.info("ollama returned")
 
         ms = int((time.time() - t0) * 1000)
