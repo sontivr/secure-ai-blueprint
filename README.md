@@ -15,7 +15,8 @@ It combines:
 - Ingress networking (MetalLB + Traefik)
 - TLS security (cert-manager)
 - Observability (Prometheus + Grafana)
-- AI backend (FastAPI + RAG pipeline)
+- AI backend (FastAPI + ChromaDB + sentence-transformers + Ollama/llama3)
+- Streamlit frontend deployed as a k8s service
 
 ---
 
@@ -85,6 +86,12 @@ This project simulates a **real production environment on a laptop** to:
 - ✅ Append-only JSONL audit log with PII redaction
 - ✅ Liveness (`/health`) and readiness (`/ready`) probes
 
+**AI / RAG**
+- ✅ Document ingestion (.txt, .md, .pdf) with paragraph-aware chunking
+- ✅ Vector search via ChromaDB (sentence-transformers/all-MiniLM-L6-v2)
+- ✅ LLM synthesis via Ollama (llama3) using structured chat API
+- ✅ Streamlit UI deployed as a dedicated k8s service at https://secure-ai-ui.lab
+
 **Quality**
 - ✅ 90-test suite covering RAG pipeline, auth, PII redaction, and all API endpoints
 - ✅ Ruff linting enforced in CI
@@ -133,11 +140,19 @@ curl -sfL https://get.k3s.io | sh -
 multipass transfer controlplane:/etc/rancher/k3s/k3s.yaml ~/.kube/config
 ```
 
-### Deploy infrastructure
+### Deploy backend
 
 ```bash
-kubectl apply -f deploy/k8s/
+bash script/deploy_backend.sh
 ```
+
+### Deploy frontend
+
+```bash
+bash script/deploy_frontend.sh
+```
+
+Both scripts build the Docker image locally, transfer it to all 3 cluster nodes via `multipass`, import it into containerd, and roll out the k8s deployment.
 
 ---
 
@@ -146,13 +161,14 @@ kubectl apply -f deploy/k8s/
 Update `/etc/hosts`:
 
 ```
-192.168.2.240 secure-ai.lab grafana.lab nginx.lab
+192.168.2.240 secure-ai.lab secure-ai-ui.lab grafana.lab nginx.lab
 ```
 
 Access:
 
-- Backend: https://secure-ai.lab/docs  
-- Grafana: https://grafana.lab  
+- **UI**: https://secure-ai-ui.lab
+- **Backend API**: https://secure-ai.lab/docs  
+- **Grafana**: https://grafana.lab  
 
 ---
 
@@ -171,9 +187,14 @@ These demonstrate multi-format ingestion and evidence-based retrieval.
 
 ```
 secure-ai-blueprint/
-├── backend/
+├── backend/          # FastAPI app, RAG pipeline, auth, audit
+├── frontend/         # Streamlit UI (deployed as k8s service)
 ├── deploy/k8s/
+│   ├── backend/      # Deployment, service, ingress, PVC, secret
+│   └── frontend/     # Deployment, service, ingress
 ├── script/
+│   ├── deploy_backend.sh
+│   └── deploy_frontend.sh
 ├── docs/
 │   ├── diagrams/
 │   ├── screenshots/
@@ -189,10 +210,12 @@ secure-ai-blueprint/
 
 ## ⚠️ Challenges & Learnings
 
-- Disk pressure from large images  
-- ErrImageNeverPull debugging  
+- Disk pressure from large ML images (5.3 GB → 1.5 GB via CPU-only PyTorch)
+- `ErrImageNeverPull` on worker nodes when image only transferred to controlplane
+- RWO volume `Multi-Attach` errors with rolling deployments (fixed with `Recreate` strategy)
+- RAG retrieval returning no results due to overly tight similarity threshold
+- LLM echoing raw context instead of synthesizing (fixed by switching to `/api/chat`)
 - Containerd namespace handling  
-- Read-only filesystem issues  
 - Local DNS resolution challenges  
 - Dependency management for AI libraries  
 
