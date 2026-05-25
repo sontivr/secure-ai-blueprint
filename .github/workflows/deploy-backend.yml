@@ -2,8 +2,17 @@ name: Deploy Backend to Local k3s
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'deploy/k8s/backend/**'
+      - 'deploy/k8s/namespace.yaml'
+      - 'Dockerfile.backend'
+      - '.github/workflows/deploy-backend.yml'
+      - 'script/deploy_backend.sh'
+      - 'requirements-test.txt'
+  pull_request:
+    branches: [main]
     paths:
       - 'backend/**'
       - 'deploy/k8s/backend/**'
@@ -41,6 +50,7 @@ jobs:
   deploy:
     runs-on: self-hosted
     needs: lint-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repo
