@@ -71,13 +71,16 @@ This project simulates a **real production environment on a laptop** to:
 - ✅ Persistent storage (Longhorn)
 - ✅ HTTPS-enabled ingress (MetalLB + Traefik + cert-manager TLS)
 - ✅ Full observability stack (Prometheus + Grafana + Alertmanager)
+- ✅ Application-level alert rules (backend down, crash-looping, high memory, frontend down)
 - ✅ Namespace isolation (`secure-ai`)
 
 **CI/CD**
-- ✅ End-to-end automated CI/CD pipeline (GitHub Actions)
-- ✅ Self-hosted GitHub runner
+- ✅ Separate CI/CD pipelines for backend and frontend (GitHub Actions)
+- ✅ Self-hosted GitHub runner with branch protection (required status checks)
 - ✅ Lint → test → build → deploy gating (deploy blocked if tests fail)
-- ✅ No container registry required (containerd image import)
+- ✅ Pull request checks on `ubuntu-latest`; deploy runs on self-hosted runner (main only)
+- ✅ VM preflight check — deploy fails fast if any Multipass VM is stopped
+- ✅ No container registry required (containerd image import via multipass)
 
 **Application Security**
 - ✅ JWT authentication with PBKDF2-SHA256 password hashing
@@ -191,16 +194,20 @@ secure-ai-blueprint/
 ├── frontend/         # Streamlit UI (deployed as k8s service)
 ├── deploy/k8s/
 │   ├── backend/      # Deployment, service, ingress, PVC, secret
-│   └── frontend/     # Deployment, service, ingress
+│   ├── frontend/     # Deployment, service, ingress
+│   ├── monitoring/   # PrometheusRule alerts, Helm values for kube-prometheus-stack
+│   └── cert-manager/ # ClusterIssuer for TLS
 ├── script/
-│   ├── deploy_backend.sh
-│   └── deploy_frontend.sh
+│   ├── deploy_backend.sh   # Build, transfer to all nodes, rollout
+│   └── deploy_frontend.sh  # Build, transfer to all nodes, rollout
 ├── docs/
 │   ├── diagrams/
 │   ├── screenshots/
 │   ├── sample-data/
 │   └── runbooks/
 ├── .github/workflows/
+│   ├── deploy-backend.yml   # Lint + test + deploy for backend
+│   └── deploy-frontend.yml  # Lint + deploy for frontend
 ├── Dockerfile.backend
 ├── .env.example
 └── README.md
@@ -213,11 +220,15 @@ secure-ai-blueprint/
 - Disk pressure from large ML images (5.3 GB → 1.5 GB via CPU-only PyTorch)
 - `ErrImageNeverPull` on worker nodes when image only transferred to controlplane
 - RWO volume `Multi-Attach` errors with rolling deployments (fixed with `Recreate` strategy)
-- RAG retrieval returning no results due to overly tight similarity threshold
+- RAG retrieval returning no results due to overly tight cosine similarity threshold
 - LLM echoing raw context instead of synthesizing (fixed by switching to `/api/chat`)
-- Containerd namespace handling  
-- Local DNS resolution challenges  
-- Dependency management for AI libraries  
+- Character-based chunking splitting mid-word (fixed with boundary-aware chunking)
+- CI deploy failing silently after 1m+ SSH timeout when Multipass VMs were stopped
+- Self-hosted runner offline causing queued jobs to cancel after 24h
+- GitHub Actions Node.js 20 deprecation requiring action version bumps before June 2026
+- Containerd namespace handling
+- Local DNS resolution challenges
+- Dependency management for AI libraries
 
 ---
 
