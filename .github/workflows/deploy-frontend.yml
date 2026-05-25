@@ -1,0 +1,51 @@
+name: Deploy Frontend to Local k3s
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'deploy/k8s/frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
+      - 'script/deploy_frontend.sh'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'deploy/k8s/frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
+      - 'script/deploy_frontend.sh'
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: '3.11'
+
+      - name: Install lint dependencies
+        run: pip install ruff==0.4.4
+
+      - name: Lint
+        run: ruff check frontend/ --select=E,F --ignore=E501
+
+  deploy:
+    runs-on: self-hosted
+    needs: lint-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6.0.2
+
+      - name: Verify kubectl context
+        run: kubectl get nodes -o wide
+
+      - name: Deploy frontend
+        run: ./script/deploy_frontend.sh "${GITHUB_SHA::7}"
