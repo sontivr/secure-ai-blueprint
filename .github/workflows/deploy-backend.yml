@@ -12,6 +12,8 @@ on:
       - '.github/workflows/deploy-backend.yml'
       - 'script/deploy_backend.sh'
       - 'requirements-test.txt'
+      - 'README.md'
+      - 'docs/**'
   pull_request:
     branches: [main]
     paths:
@@ -23,6 +25,8 @@ on:
       - '.github/workflows/deploy-backend.yml'
       - 'script/deploy_backend.sh'
       - 'requirements-test.txt'
+      - 'README.md'
+      - 'docs/**'
 
 jobs:
   lint-and-test:
