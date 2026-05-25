@@ -1,5 +1,11 @@
 grafana:
   adminPassword: admin123
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki-stack.monitoring.svc.cluster.local:3100
+      access: proxy
+      isDefault: false
   persistence:
     enabled: true
     storageClassName: longhorn
