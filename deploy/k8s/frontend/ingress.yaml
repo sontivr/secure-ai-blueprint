@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: secure-ai-frontend
+  namespace: secure-ai
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-clusterissuer
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - secure-ai-ui.lab
+      secretName: secure-ai-ui-lab-tls
+  rules:
+    - host: secure-ai-ui.lab
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: secure-ai-frontend
+                port:
+                  number: 8501

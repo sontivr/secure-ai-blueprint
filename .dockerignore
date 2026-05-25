@@ -10,3 +10,4 @@ data/audit.jsonl
 docs/screenshots
 *.pyc
 .DS_Store
+*.tar
