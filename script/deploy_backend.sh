@@ -57,6 +57,7 @@ echo "==> Waiting for rollout"
 kubectl rollout status deployment secure-ai-backend -n "${NAMESPACE}" --timeout=180s
 
 echo "==> Cleaning local tar"
+rm -f "${TAR_FILE}"
 
 echo "==> Deployment complete"
 kubectl get pods -n "${NAMESPACE}" -o wide
