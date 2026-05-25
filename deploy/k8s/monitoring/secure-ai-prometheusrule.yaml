@@ -1,0 +1,56 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: secure-ai-alerts
+  namespace: secure-ai
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: secure-ai.backend
+      interval: 30s
+      rules:
+        - alert: SecureAIBackendDown
+          expr: kube_deployment_status_replicas_ready{namespace="secure-ai",deployment="secure-ai-backend"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            namespace: secure-ai
+          annotations:
+            summary: "Secure AI backend is down"
+            description: "secure-ai-backend has 0 ready replicas for more than 1 minute."
+
+        - alert: SecureAIBackendCrashLooping
+          expr: increase(kube_pod_container_status_restarts_total{namespace="secure-ai",container="backend"}[15m]) > 3
+          for: 0m
+          labels:
+            severity: warning
+            namespace: secure-ai
+          annotations:
+            summary: "Secure AI backend is crash-looping"
+            description: "Backend container restarted {{ $value | printf \"%.0f\" }} times in the last 15 minutes."
+
+        - alert: SecureAIBackendHighMemory
+          expr: >
+            container_memory_working_set_bytes{namespace="secure-ai",container="backend"}
+            / (1500 * 1024 * 1024) > 0.85
+          for: 5m
+          labels:
+            severity: warning
+            namespace: secure-ai
+          annotations:
+            summary: "Secure AI backend memory usage is high"
+            description: "Backend memory has exceeded 85% of its 1500Mi limit for 5 minutes."
+
+    - name: secure-ai.frontend
+      interval: 30s
+      rules:
+        - alert: SecureAIFrontendDown
+          expr: kube_deployment_status_replicas_ready{namespace="secure-ai",deployment="secure-ai-frontend"} == 0
+          for: 1m
+          labels:
+            severity: warning
+            namespace: secure-ai
+          annotations:
+            summary: "Secure AI frontend is down"
+            description: "secure-ai-frontend has 0 ready replicas for more than 1 minute."
