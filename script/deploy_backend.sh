@@ -16,6 +16,17 @@ echo "==> Saving image tar: ${TAR_FILE}"
 rm -f "${TAR_FILE}"
 docker save "${FULL_IMAGE}" -o "${TAR_FILE}"
 
+echo "==> Preflight: checking all Multipass VMs are running"
+ALL_VMS=("${CONTROLPLANE_VM}" "${WORKER_VMS[@]}")
+for VM in "${ALL_VMS[@]}"; do
+  STATUS=$(multipass list --format csv 2>/dev/null | awk -F',' -v name="${VM}" '$1==name {print $2}')
+  if [[ "${STATUS}" != "Running" ]]; then
+    echo "  [ERROR] VM '${VM}' is not running (status: '${STATUS:-not found}'). Start it with: multipass start ${VM}"
+    exit 1
+  fi
+  echo "  [OK] ${VM} is Running"
+done
+
 echo "==> Transferring and importing image to all nodes"
 for VM in "${CONTROLPLANE_VM}" "${WORKER_VMS[@]}"; do
   echo "  --> ${VM}"
