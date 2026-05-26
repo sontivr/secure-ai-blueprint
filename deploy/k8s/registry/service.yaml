@@ -4,10 +4,10 @@ metadata:
   name: registry
   namespace: secure-ai
 spec:
-  type: LoadBalancer
-  loadBalancerIP: 192.168.2.243
+  type: NodePort
   selector:
     app: registry
   ports:
     - port: 5000
       targetPort: 5000
+      nodePort: 30500

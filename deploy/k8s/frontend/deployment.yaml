@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: registry.lab:5000/secure-ai-frontend:IMAGE_TAG
+          image: registry.lab:30500/secure-ai-frontend:IMAGE_TAG
           imagePullPolicy: Always
           ports:
             - containerPort: 8501

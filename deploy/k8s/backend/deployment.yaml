@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: registry.lab:5000/secure-ai-backend:IMAGE_TAG
+          image: registry.lab:30500/secure-ai-backend:IMAGE_TAG
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
