@@ -22,7 +22,7 @@ kubectl apply -f deploy/k8s/backend/service.yaml
 kubectl apply -f deploy/k8s/backend/ingress.yaml
 
 echo "==> Deploying image: ${FULL_IMAGE}"
-sed "s|secure-ai-backend:IMAGE_TAG|${REGISTRY}/secure-ai-backend:${IMAGE_TAG}|g" \
+sed "s|IMAGE_TAG|${IMAGE_TAG}|g" \
   deploy/k8s/backend/deployment.yaml | kubectl apply -f -
 
 echo "==> Restarting deployment to pick up new image"
