@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REGISTRY="registry.lab:5000"
+REGISTRY="registry.lab:30500"
 IMAGE_NAME="secure-ai-backend"
 IMAGE_TAG="${1:-latest}"
 FULL_IMAGE="${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"

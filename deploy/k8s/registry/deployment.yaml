@@ -41,5 +41,5 @@ spec:
               mountPath: /var/lib/registry
       volumes:
         - name: registry-storage
-          persistentVolumeClaim:
-            claimName: registry-pvc
+          emptyDir:
+            sizeLimit: 10Gi

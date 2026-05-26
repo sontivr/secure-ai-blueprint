@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REGISTRY_IP="192.168.2.243"
-REGISTRY_HOST="registry.lab:5000"
+REGISTRY_IP="192.168.2.12"
+REGISTRY_HOST="registry.lab:30500"
 CONTROLPLANE_VM="controlplane"
 WORKER_VMS=("node01" "node02")
 NAMESPACE="secure-ai"
 
 echo "==> Applying registry manifests"
-kubectl apply -f deploy/k8s/registry/pvc.yaml
 kubectl apply -f deploy/k8s/registry/deployment.yaml
 kubectl apply -f deploy/k8s/registry/service.yaml
 
@@ -19,7 +18,7 @@ echo "==> Configuring k3s nodes to allow insecure registry pulls"
 REGISTRIES_YAML="mirrors:
   \"${REGISTRY_HOST}\":
     endpoint:
-      - \"http://${REGISTRY_IP}:5000\""
+      - \"http://${REGISTRY_IP}:30500\""
 
 echo "  --> ${CONTROLPLANE_VM}"
 printf '%s\n' "${REGISTRIES_YAML}" | multipass exec "${CONTROLPLANE_VM}" -- sudo tee /etc/rancher/k3s/registries.yaml > /dev/null
