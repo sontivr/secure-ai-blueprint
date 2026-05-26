@@ -8,7 +8,6 @@ WORKER_VMS=("node01" "node02")
 NAMESPACE="secure-ai"
 
 echo "==> Applying registry manifests"
-kubectl apply -f deploy/k8s/registry/pvc.yaml
 kubectl apply -f deploy/k8s/registry/deployment.yaml
 kubectl apply -f deploy/k8s/registry/service.yaml
 
