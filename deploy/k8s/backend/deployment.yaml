@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: docker.io/library/secure-ai-backend:IMAGE_TAG
-          imagePullPolicy: Never
+          image: registry.lab:5000/secure-ai-backend:IMAGE_TAG
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           env:
