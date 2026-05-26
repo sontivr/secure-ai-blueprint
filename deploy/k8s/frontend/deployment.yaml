@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: docker.io/library/secure-ai-frontend:IMAGE_TAG
-          imagePullPolicy: Never
+          image: registry.lab:5000/secure-ai-frontend:IMAGE_TAG
+          imagePullPolicy: Always
           ports:
             - containerPort: 8501
           env:
