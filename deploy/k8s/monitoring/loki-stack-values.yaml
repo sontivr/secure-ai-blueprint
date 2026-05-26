@@ -2,8 +2,8 @@ loki:
   enabled: true
   persistence:
     enabled: true
-    storageClassName: longhorn
-    size: 10Gi
+    storageClassName: longhorn-single-replica
+    size: 5Gi
   config:
     limits_config:
       retention_period: 168h   # 7 days
