@@ -4,7 +4,14 @@ grafana:
     dashboards:
       enabled: true
       searchNamespace: ALL
+  defaultDatasourceEnabled: false
   additionalDataSources:
+    - name: Prometheus
+      uid: prometheus
+      type: prometheus
+      url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+      access: proxy
+      isDefault: true
     - name: Loki
       uid: loki
       type: loki
