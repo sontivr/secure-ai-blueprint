@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REGISTRY_IP="192.168.2.12"
+REGISTRY_IP="192.168.2.15"
 REGISTRY_HOST="registry.lab:30500"
 CONTROLPLANE_VM="controlplane"
-WORKER_VMS=("node01" "node02")
+WORKER_VMS=("node01")
 NAMESPACE="secure-ai"
 
 echo "==> Applying registry manifests"
