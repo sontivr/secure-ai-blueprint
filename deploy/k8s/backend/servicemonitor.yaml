@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: secure-ai-backend
+  namespace: secure-ai
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: secure-ai-backend
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+  namespaceSelector:
+    matchNames:
+      - secure-ai

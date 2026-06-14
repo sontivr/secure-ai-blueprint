@@ -22,11 +22,13 @@ import tempfile
 from .pii_redactor import redact_pii
 
 from .logger import get_logger
+from prometheus_fastapi_instrumentator import Instrumentator
 
 logger = get_logger(__name__)
 
 
 app = FastAPI(title=APP_NAME)
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 store = RagStore()
 

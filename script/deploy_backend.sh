@@ -19,7 +19,9 @@ kubectl apply -f deploy/k8s/namespace.yaml
 echo "==> Applying Kubernetes manifests"
 kubectl apply -f deploy/k8s/backend/pvc.yaml
 kubectl apply -f deploy/k8s/backend/service.yaml
+kubectl apply -f deploy/k8s/backend/servicemonitor.yaml
 kubectl apply -f deploy/k8s/backend/ingress.yaml
+kubectl apply -f deploy/k8s/monitoring/grafana-dashboard-secure-ai.yaml
 
 echo "==> Deploying image: ${FULL_IMAGE}"
 sed "s|IMAGE_TAG|${IMAGE_TAG}|g" \

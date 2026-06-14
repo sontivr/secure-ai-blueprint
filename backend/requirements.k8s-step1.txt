@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
+prometheus-fastapi-instrumentator==7.0.0
 python-jose[cryptography]
 passlib[bcrypt]
 pydantic

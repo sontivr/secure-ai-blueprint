@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-secure-ai
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  secure-ai.json: |
+    {
+      "title": "Secure AI Blueprint",
+      "uid": "secure-ai-overview",
+      "tags": ["secure-ai"],
+      "timezone": "browser",
+      "refresh": "30s",
+      "schemaVersion": 38,
+      "panels": [
+        {
+          "id": 1,
+          "title": "Request Rate (req/s)",
+          "type": "timeseries",
+          "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate(http_requests_total{namespace=\"secure-ai\"}[2m])) by (handler)",
+              "legendFormat": "{{handler}}"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Error Rate (%)",
+          "type": "timeseries",
+          "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate(http_requests_total{namespace=\"secure-ai\",status=~\"5..\"}[2m])) / sum(rate(http_requests_total{namespace=\"secure-ai\"}[2m])) * 100",
+              "legendFormat": "error %"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "P95 Latency (s)",
+          "type": "timeseries",
+          "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace=\"secure-ai\"}[2m])) by (le, handler))",
+              "legendFormat": "p95 {{handler}}"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Pod Restarts",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 8, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"secure-ai\"})",
+              "legendFormat": "restarts"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "Backend CPU Usage",
+          "type": "timeseries",
+          "gridPos": { "x": 6, "y": 8, "w": 9, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"secure-ai\",container!=\"\"}[2m])) by (pod)",
+              "legendFormat": "{{pod}}"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Backend Memory Usage (MB)",
+          "type": "timeseries",
+          "gridPos": { "x": 15, "y": 8, "w": 9, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{namespace=\"secure-ai\",container!=\"\"}) by (pod) / 1024 / 1024",
+              "legendFormat": "{{pod}}"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "title": "Backend Logs",
+          "type": "logs",
+          "gridPos": { "x": 0, "y": 16, "w": 24, "h": 8 },
+          "targets": [
+            {
+              "datasource": { "type": "loki", "uid": "loki" },
+              "expr": "{namespace=\"secure-ai\", app=\"secure-ai-backend\"}"
+            }
+          ],
+          "options": { "dedupStrategy": "none", "showTime": true }
+        }
+      ]
+    }
