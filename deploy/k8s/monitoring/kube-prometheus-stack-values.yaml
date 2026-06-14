@@ -1,7 +1,12 @@
 grafana:
   adminPassword: admin123
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL
   additionalDataSources:
     - name: Loki
+      uid: loki
       type: loki
       url: http://loki-stack.monitoring.svc.cluster.local:3100
       access: proxy
