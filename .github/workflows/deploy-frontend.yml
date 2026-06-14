@@ -7,14 +7,14 @@ on:
       - 'frontend/**'
       - 'deploy/k8s/frontend/**'
       - '.github/workflows/deploy-frontend.yml'
-      - 'script/deploy_frontend.sh'
+      - 'script/**'
   pull_request:
     branches: [main]
     paths:
       - 'frontend/**'
       - 'deploy/k8s/frontend/**'
       - '.github/workflows/deploy-frontend.yml'
-      - 'script/deploy_frontend.sh'
+      - 'script/**'
 
 jobs:
   lint-and-test:
