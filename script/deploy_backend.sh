@@ -29,7 +29,7 @@ echo "==> Restarting deployment to pick up new image"
 kubectl rollout restart deployment/secure-ai-backend -n "${NAMESPACE}"
 
 echo "==> Waiting for rollout"
-kubectl rollout status deployment secure-ai-backend -n "${NAMESPACE}" --timeout=180s
+kubectl rollout status deployment secure-ai-backend -n "${NAMESPACE}" --timeout=300s
 
 echo "==> Deployment complete"
 kubectl get pods -n "${NAMESPACE}" -o wide
